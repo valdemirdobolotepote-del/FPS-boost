@@ -1,0 +1,76 @@
+main.lua
+-- MODO LISO EXTREMO (SEM BUG)
+
+local Lighting = game:GetService("Lighting")
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+
+local function LimparSeguro(obj)
+
+    -- TEXTURAS (ESCONDE, NAO APAGA)
+    if obj:IsA("Decal")
+    or obj:IsA("Texture")
+    or obj:IsA("SurfaceAppearance") then
+
+        obj.Transparency = 1
+
+    -- IMAGENS DA GUI (NAO REMOVE HUD)
+    elseif obj:IsA("ImageLabel")
+    or obj:IsA("ImageButton") then
+
+        if not obj:IsDescendantOf(player.PlayerGui) then
+            obj.ImageTransparency = 1
+        end
+
+    -- EFEITOS
+    elseif obj:IsA("ParticleEmitter")
+    or obj:IsA("Trail")
+    or obj:IsA("Beam")
+    or obj:IsA("Smoke")
+    or obj:IsA("Fire") then
+
+        obj.Enabled = false
+
+    -- PARTES
+    elseif obj:IsA("BasePart")
+    or obj:IsA("MeshPart") then
+
+        obj.Material = Enum.Material.Plastic
+        obj.CastShadow = false
+        obj.Reflectance = 0
+        obj.Color = Color3.fromRGB(150,150,150)
+    end
+end
+
+-- APLICAR
+for _,v in pairs(game:GetDescendants()) do
+    pcall(function()
+        LimparSeguro(v)
+    end)
+end
+
+-- LIGHTING
+pcall(function()
+    Lighting.GlobalShadows = false
+    Lighting.Brightness = 1
+    Lighting.FogEnd = 9e9
+
+    Lighting.EnvironmentDiffuseScale = 0
+    Lighting.EnvironmentSpecularScale = 0
+end)
+
+-- NOVOS OBJETOS
+game.DescendantAdded:Connect(function(v)
+    task.wait()
+    pcall(function()
+        LimparSeguro(v)
+    end)
+end)
+
+-- GRAFICO MINIMO
+pcall(function()
+    settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+end)
+
+print("✅ MODO LISO EXTREMO SEGURO ATIVO")
